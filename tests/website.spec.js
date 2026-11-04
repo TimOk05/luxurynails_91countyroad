@@ -25,7 +25,15 @@ test('loads the luxury journey without overflow or browser errors', async ({ pag
 
   const images = page.locator('img');
   expect(await images.count()).toBeGreaterThanOrEqual(8);
-  expect(await images.evaluateAll((items) => items.every((image) => image.complete && image.naturalWidth > 0))).toBe(true);
+  await images.evaluateAll(async (items) => {
+    for (const image of items) {
+      image.scrollIntoView({ block: 'center' });
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      await image.decode().catch(() => {});
+    }
+    window.scrollTo(0, 0);
+  });
+  await expect.poll(() => images.evaluateAll((items) => items.every((image) => image.complete && image.naturalWidth > 0))).toBe(true);
 
   const heroImage = page.locator('.hero-media picture img');
   await expect(heroImage).toHaveCSS('object-fit', 'cover');
@@ -49,6 +57,55 @@ test('mobile and tablet menu opens, navigates and closes', async ({ page }) => {
   await page.getByRole('navigation').getByRole('link', { name: 'Services' }).click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('#services')).toBeInViewport();
+
+  const targetPosition = await page.locator('#services').evaluate((target) => {
+    const header = document.querySelector('.site-header');
+    return {
+      targetTop: target.getBoundingClientRect().top,
+      headerHeight: header.getBoundingClientRect().height
+    };
+  });
+  expect(targetPosition.targetTop).toBeGreaterThanOrEqual(targetPosition.headerHeight - 2);
+});
+
+test('keeps the audited typography readable', async ({ page }) => {
+  const typography = await page.evaluate(() => {
+    const fontSize = (selector) => {
+      const element = [...document.querySelectorAll(selector)].find((item) => {
+        const style = getComputedStyle(item);
+        return style.display !== 'none' && item.getBoundingClientRect().width > 0;
+      });
+      return element ? parseFloat(getComputedStyle(element).fontSize) : 0;
+    };
+
+    return {
+      headingFamily: getComputedStyle(document.querySelector('h1')).fontFamily,
+      bodyFamily: getComputedStyle(document.body).fontFamily,
+      interfaceSizes: [
+        '.announcement',
+        '.kicker',
+        '.section-label',
+        '.button',
+        '.hero-assurances',
+        '.service-tabs small',
+        '.field label',
+        '.footer-links a'
+      ].map(fontSize),
+      readingSizes: [
+        '.hero-intro',
+        '.service-panel:not([hidden]) > p',
+        '.included-list li',
+        '.process-list p',
+        '.field input',
+        '.faq-list details p'
+      ].map(fontSize)
+    };
+  });
+
+  expect(typography.headingFamily).toContain('DM Serif Display');
+  expect(typography.bodyFamily).toContain('DM Sans');
+  expect(Math.min(...typography.interfaceSizes)).toBeGreaterThanOrEqual(12);
+  expect(Math.min(...typography.readingSizes)).toBeGreaterThanOrEqual(13);
 });
 
 test('service selector changes content and prepares the quote', async ({ page }) => {
