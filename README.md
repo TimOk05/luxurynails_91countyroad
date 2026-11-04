@@ -1,11 +1,13 @@
 # LockSora Cleaning Company — demo website
 
-A bespoke, responsive one-page website concept for a local, fully insured cleaning company serving Tooting and nearby South London areas.
+A bespoke, responsive black-and-gold website concept based on LockSora's Instagram identity and public service information.
 
 ## What is included
 
-- Distinct brand direction and responsive layout
-- Service overview, process, areas, offer and accessible FAQs
+- Instagram-aligned black, champagne-gold and ivory brand direction
+- Interactive service and price selector using the company's published prices
+- Dedicated desktop and mobile hero photography with native aspect ratios
+- Real LockSora Instagram imagery, process, areas, offer and accessible FAQs
 - Quote builder that prepares a WhatsApp enquiry without storing form data
 - LocalBusiness structured data, Open Graph metadata, sitemap and robots file
 - Keyboard-friendly navigation, form validation and reduced-motion support

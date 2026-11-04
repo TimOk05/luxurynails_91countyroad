@@ -14,75 +14,93 @@ const closeMenu = () => {
   body.classList.remove('menu-open');
 };
 
-if (menuToggle && menu) {
+if (menu && menuToggle) {
   menuToggle.addEventListener('click', () => {
-    const open = menuToggle.getAttribute('aria-expanded') === 'true';
-    menu.classList.toggle('is-open', !open);
-    menuToggle.setAttribute('aria-expanded', String(!open));
-    if (menuLabel) menuLabel.textContent = open ? 'Open menu' : 'Close menu';
-    body.classList.toggle('menu-open', !open);
+    const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+    menu.classList.toggle('is-open', !isOpen);
+    menuToggle.setAttribute('aria-expanded', String(!isOpen));
+    if (menuLabel) menuLabel.textContent = isOpen ? 'Open menu' : 'Close menu';
+    body.classList.toggle('menu-open', !isOpen);
   });
 
   menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeMenu();
-      menuToggle.focus();
-    }
+    if (event.key !== 'Escape' || menuToggle.getAttribute('aria-expanded') !== 'true') return;
+    closeMenu();
+    menuToggle.focus();
   });
 
   window.addEventListener('resize', () => {
-    if (window.innerWidth > 780) closeMenu();
+    if (window.innerWidth > 900) closeMenu();
   });
 }
 
-const updateHeader = () => {
-  header?.classList.toggle('is-scrolled', window.scrollY > 12);
-};
-
+const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 12);
 updateHeader();
 window.addEventListener('scroll', updateHeader, { passive: true });
 
 const revealItems = document.querySelectorAll('.reveal');
 if ('IntersectionObserver' in window) {
-  const revealObserver = new IntersectionObserver((entries, observer) => {
+  const observer = new IntersectionObserver((entries, activeObserver) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
       entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
+      activeObserver.unobserve(entry.target);
     });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  }, { rootMargin: '0px 0px -7% 0px', threshold: 0.06 });
 
-  revealItems.forEach((item) => revealObserver.observe(item));
+  revealItems.forEach((item) => observer.observe(item));
 } else {
   revealItems.forEach((item) => item.classList.add('is-visible'));
 }
 
-document.querySelectorAll('.faq-item button').forEach((button) => {
-  button.addEventListener('click', () => {
-    const expanded = button.getAttribute('aria-expanded') === 'true';
-    const answer = document.getElementById(button.getAttribute('aria-controls'));
-    button.setAttribute('aria-expanded', String(!expanded));
-    if (answer) answer.hidden = expanded;
+const serviceTabs = [...document.querySelectorAll('[data-service-tab]')];
+const servicePanels = [...document.querySelectorAll('[data-service-panel]')];
+
+const selectServicePanel = (serviceName, moveFocus = false) => {
+  serviceTabs.forEach((tab) => {
+    const selected = tab.dataset.serviceTab === serviceName;
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    if (selected && moveFocus) tab.focus();
+  });
+
+  servicePanels.forEach((panel) => {
+    panel.hidden = panel.dataset.servicePanel !== serviceName;
+  });
+};
+
+serviceTabs.forEach((tab, index) => {
+  tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+  tab.addEventListener('click', () => selectServicePanel(tab.dataset.serviceTab));
+  tab.addEventListener('keydown', (event) => {
+    if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    let nextIndex = index;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % serviceTabs.length;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + serviceTabs.length) % serviceTabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = serviceTabs.length - 1;
+    selectServicePanel(serviceTabs[nextIndex].dataset.serviceTab, true);
   });
 });
 
-document.querySelectorAll('[data-service-link]').forEach((link) => {
+document.querySelectorAll('[data-select-service]').forEach((link) => {
   link.addEventListener('click', () => {
-    const service = document.getElementById('service');
-    if (!service) return;
-    service.value = link.dataset.serviceLink || '';
-    service.removeAttribute('aria-invalid');
+    const serviceSelect = document.getElementById('service');
+    if (!serviceSelect) return;
+    serviceSelect.value = link.dataset.selectService || '';
+    serviceSelect.removeAttribute('aria-invalid');
     const error = document.querySelector('[data-error-for="service"]');
     if (error) error.textContent = '';
   });
 });
 
-const fieldMessages = {
-  service: 'Please choose a cleaning service.',
+const messages = {
+  service: 'Please select a service.',
   postcode: 'Please enter your postcode.',
-  property: 'Please choose your property size.',
+  property: 'Please select your property size.',
   name: 'Please enter your name.',
   phone: 'Please enter a phone number.'
 };
@@ -90,18 +108,13 @@ const fieldMessages = {
 const validateField = (field) => {
   const value = field.value.trim();
   const error = document.querySelector(`[data-error-for="${field.name}"]`);
-  let message = value ? '' : fieldMessages[field.name];
+  let message = value ? '' : messages[field.name];
 
-  if (!message && field.name === 'postcode' && value.length < 3) {
-    message = 'Please check your postcode.';
-  }
+  if (!message && field.name === 'postcode' && value.length < 3) message = 'Please check your postcode.';
+  if (!message && field.name === 'phone' && value.replace(/\D/g, '').length < 7) message = 'Please check your phone number.';
 
-  if (!message && field.name === 'phone' && value.replace(/\D/g, '').length < 7) {
-    message = 'Please check your phone number.';
-  }
-
-  field.setAttribute('aria-invalid', String(Boolean(message)));
-  if (!message) field.removeAttribute('aria-invalid');
+  if (message) field.setAttribute('aria-invalid', 'true');
+  else field.removeAttribute('aria-invalid');
   if (error) error.textContent = message || '';
   return !message;
 };
@@ -121,11 +134,10 @@ if (quoteForm) {
 
   quoteForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const valid = requiredFields.map(validateField).every(Boolean);
+    const isValid = requiredFields.map(validateField).every(Boolean);
 
-    if (!valid) {
-      const firstInvalid = quoteForm.querySelector('[aria-invalid="true"]');
-      firstInvalid?.focus();
+    if (!isValid) {
+      quoteForm.querySelector('[aria-invalid="true"]')?.focus();
       if (quoteStatus) {
         quoteStatus.textContent = 'Please complete the highlighted details.';
         quoteStatus.classList.add('is-visible');
@@ -138,22 +150,21 @@ if (quoteForm) {
     const lines = [
       `Hello LockSora, my name is ${data.get('name')}.`,
       '',
-      `I'd like a free quote for: ${data.get('service')}`,
+      `I would like a quote for: ${data.get('service')}`,
       `Postcode: ${data.get('postcode')}`,
       `Property: ${data.get('property')}`,
       `Phone: ${data.get('phone')}`
     ];
 
     if (details) lines.push(`Extra details: ${details}`);
-    lines.push('', 'I would also like to claim the 10% first-clean offer.');
+    lines.push('', 'I would also like to claim the 10% new-customer offer.');
 
     if (quoteStatus) {
       quoteStatus.textContent = 'Your enquiry is ready — opening WhatsApp in a new tab.';
       quoteStatus.classList.add('is-visible');
     }
 
-    const whatsappUrl = `https://wa.me/447380276526?text=${encodeURIComponent(lines.join('\n'))}`;
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    window.open(`https://wa.me/447380276526?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener,noreferrer');
   });
 }
 
