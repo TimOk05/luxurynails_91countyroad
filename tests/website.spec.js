@@ -24,7 +24,7 @@ test('loads the luxury journey without overflow or browser errors', async ({ pag
   await expect(page.getByRole('heading', { name: /Choose your clean/i })).toBeVisible();
 
   const images = page.locator('img');
-  expect(await images.count()).toBeGreaterThanOrEqual(8);
+  expect(await images.count()).toBeGreaterThanOrEqual(6);
   await images.evaluateAll(async (items) => {
     for (const image of items) {
       image.scrollIntoView({ block: 'center' });
@@ -102,10 +102,17 @@ test('keeps the audited typography readable', async ({ page }) => {
     };
   });
 
-  expect(typography.headingFamily).toContain('DM Serif Display');
-  expect(typography.bodyFamily).toContain('DM Sans');
+  expect(typography.headingFamily).toContain('Sora');
+  expect(typography.bodyFamily).toContain('Inter');
   expect(Math.min(...typography.interfaceSizes)).toBeGreaterThanOrEqual(12);
-  expect(Math.min(...typography.readingSizes)).toBeGreaterThanOrEqual(13);
+  expect(Math.min(...typography.readingSizes)).toBeGreaterThanOrEqual(14);
+});
+
+test('uses temporary LS marks instead of image logos', async ({ page }) => {
+  await expect(page.locator('img[src*="brand-original"]')).toHaveCount(0);
+  await expect(page.locator('.logo-placeholder')).toHaveCount(3);
+  await expect(page.locator('.hero-crest.logo-placeholder')).toContainText('LS');
+  await expect(page.locator('.footer-mark.logo-placeholder')).toContainText('LS');
 });
 
 test('service selector changes content and prepares the quote', async ({ page }) => {

@@ -12,8 +12,8 @@
   --muted: #625d55;
   --line: #d8cdbd;
   --line-dark: rgb(226 193 110 / 23%);
-  --serif: "DM Serif Display", Georgia, serif;
-  --sans: "DM Sans", "Segoe UI", sans-serif;
+  --serif: "Sora", "Segoe UI", sans-serif;
+  --sans: "Inter", "Segoe UI", sans-serif;
   --shell: min(1240px, calc(100% - 56px));
   --radius: 3px;
   --shadow: 0 30px 90px rgb(0 0 0 / 22%);
@@ -24,6 +24,7 @@
 }
 
 html {
+  font-size: 17px;
   scroll-behavior: smooth;
   scroll-padding-top: 98px;
 }
@@ -2133,4 +2134,289 @@ h2 em {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
   .reveal { transform: none; }
+}
+
+/* Readability system: clean typography and temporary brand marks */
+h1,
+h2,
+h3,
+.brand-word strong,
+.service-tabs strong,
+.panel-top strong,
+.feed-real figcaption strong,
+.areas-card figcaption strong,
+.direct-contact strong,
+.form-head span,
+.faq-list summary span,
+.footer-action p {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+
+h1,
+h2 {
+  line-height: 1.08;
+}
+
+h1 em,
+h2 em,
+.hero h1 em,
+.statement-title em,
+.proof-heading h2 em,
+.process-title h2 em,
+.areas-copy h2 em,
+.enquire-intro h2 em,
+.faq-intro h2 em,
+.hero-caption em,
+.footer-brand p {
+  font-style: normal;
+  font-weight: inherit;
+}
+
+.logo-placeholder {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--gold);
+  background:
+    linear-gradient(135deg, rgb(226 193 110 / 8%), transparent 55%),
+    #0d0c0a;
+  color: var(--gold-bright);
+}
+
+.logo-placeholder > span {
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: .06em;
+  line-height: 1;
+  transform: none;
+}
+
+.brand-monogram.logo-placeholder {
+  border-radius: 50%;
+}
+
+.brand-monogram.logo-placeholder > span {
+  font-size: 1rem;
+}
+
+.hero-crest.logo-placeholder {
+  padding: 0;
+}
+
+.hero-crest.logo-placeholder > span {
+  font-size: 2.15rem;
+}
+
+.footer-mark {
+  width: 118px;
+  height: 118px;
+}
+
+.footer-mark > span {
+  font-size: 2rem;
+}
+
+.hero h1 {
+  font-size: clamp(3.35rem, 5vw, 5.4rem);
+}
+
+.statement-title {
+  font-size: clamp(3.2rem, 5.3vw, 5.35rem);
+}
+
+.services-heading h2,
+.proof-heading h2,
+.areas-copy h2,
+.enquire-intro h2,
+.faq-intro h2 {
+  font-size: clamp(3rem, 4.6vw, 4.8rem);
+}
+
+.process-title h2 {
+  font-size: clamp(2.9rem, 4.4vw, 4.65rem);
+}
+
+.service-panel h3 {
+  font-size: clamp(2.3rem, 3vw, 3.15rem);
+  line-height: 1.08;
+}
+
+.hero-intro,
+.statement-copy,
+.services-heading > p,
+.proof-intro p,
+.service-panel > p,
+.areas-copy > p:not(.section-label),
+.enquire-intro > p:not(.section-label),
+.faq-intro > p:not(.section-label),
+.faq-list details p {
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.button,
+.button-link,
+.panel-cta,
+.proof-intro a,
+.faq-intro > a {
+  font-size: .84rem;
+  line-height: 1.35;
+}
+
+.section-label,
+.kicker {
+  font-size: .76rem;
+  letter-spacing: .11em;
+}
+
+.hero-assurances,
+.service-tabs small,
+.panel-top > span,
+.panel-top small,
+.included-list h4,
+.feed-photo > span,
+.feed-post > span,
+.areas-card figcaption span,
+.direct-contact small,
+.footer-links h2,
+.footer-bottom {
+  font-size: .76rem;
+}
+
+.included-list li,
+.process-list p {
+  font-size: .9rem;
+  line-height: 1.65;
+}
+
+.areas-list li {
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.field label {
+  font-size: .8rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  font-size: 1rem;
+}
+
+.field-error,
+.privacy-note,
+.form-status {
+  font-size: .76rem;
+}
+
+.faq-list summary span {
+  font-size: 1.28rem;
+  line-height: 1.35;
+}
+
+.footer-brand p {
+  color: rgb(255 255 255 / 74%);
+  font-family: var(--sans);
+  font-size: .95rem;
+  line-height: 1.6;
+}
+
+.footer-links a {
+  font-size: .84rem;
+}
+
+.welcome-offer > span {
+  font-size: 3.2rem;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .primary-nav > a:not(.nav-cta) {
+    font-size: 1.55rem;
+    font-weight: 600;
+  }
+
+  .hero h1 {
+    font-size: clamp(3.05rem, 7.5vw, 4.6rem);
+  }
+
+  .statement-title {
+    font-size: clamp(2.95rem, 7.5vw, 4.5rem);
+  }
+
+  .services-heading h2,
+  .proof-heading h2,
+  .areas-copy h2,
+  .enquire-intro h2,
+  .faq-intro h2,
+  .process-title h2 {
+    font-size: clamp(2.8rem, 7.2vw, 4.2rem);
+  }
+}
+
+@media (max-width: 680px) {
+  .brand-word strong {
+    font-size: .98rem;
+  }
+
+  .brand-word small {
+    font-size: .68rem;
+    letter-spacing: .13em;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.65rem, 10.7vw, 3.4rem);
+    line-height: 1.08;
+  }
+
+  .statement-title,
+  .services-heading h2,
+  .proof-heading h2,
+  .areas-copy h2,
+  .enquire-intro h2,
+  .faq-intro h2,
+  .process-title h2 {
+    font-size: clamp(2.45rem, 9.7vw, 3.5rem);
+    line-height: 1.1;
+  }
+
+  .service-panel h3 {
+    font-size: clamp(2rem, 8.5vw, 2.75rem);
+  }
+
+  .hero-intro,
+  .statement-copy,
+  .services-heading > p,
+  .proof-intro p,
+  .service-panel > p,
+  .areas-copy > p:not(.section-label),
+  .enquire-intro > p:not(.section-label),
+  .faq-intro > p:not(.section-label),
+  .faq-list details p {
+    font-size: 1rem;
+    line-height: 1.72;
+  }
+
+  .service-tabs strong,
+  .process-list h3 {
+    font-size: 1.2rem;
+    line-height: 1.35;
+  }
+
+  .faq-list summary span {
+    font-size: 1.16rem;
+  }
+
+  .hero-crest.logo-placeholder > span {
+    font-size: 1.7rem;
+  }
+
+  .footer-mark {
+    width: 104px;
+    height: 104px;
+  }
 }
