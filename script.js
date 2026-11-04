@@ -5,6 +5,8 @@ const menuToggle = document.querySelector('[data-menu-toggle]');
 const menuLabel = menuToggle?.querySelector('.sr-only');
 const quoteForm = document.querySelector('[data-quote-form]');
 const quoteStatus = document.querySelector('[data-form-status]');
+const quotePrompt = document.querySelector('[data-quote-prompt]');
+const quotePromptCta = document.querySelector('[data-quote-prompt-cta]');
 
 const closeMenu = () => {
   if (!menu || !menuToggle) return;
@@ -165,6 +167,83 @@ if (quoteForm) {
     }
 
     window.open(`https://wa.me/447380276526?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener,noreferrer');
+  });
+}
+
+if (quotePrompt && typeof quotePrompt.showModal === 'function') {
+  const promptStorageKey = 'locksoraQuotePromptSeen';
+  let promptTimer;
+
+  const hasSeenPrompt = () => {
+    try {
+      return sessionStorage.getItem(promptStorageKey) === 'true';
+    } catch {
+      return false;
+    }
+  };
+
+  const rememberPrompt = () => {
+    try {
+      sessionStorage.setItem(promptStorageKey, 'true');
+    } catch {
+      // The prompt can still work when storage is unavailable.
+    }
+  };
+
+  const clearPromptTimer = () => {
+    if (!promptTimer) return;
+    window.clearTimeout(promptTimer);
+    promptTimer = undefined;
+  };
+
+  const closePrompt = () => {
+    clearPromptTimer();
+    if (quotePrompt.open) quotePrompt.close();
+    else rememberPrompt();
+  };
+
+  const showPrompt = () => {
+    if (hasSeenPrompt() || quotePrompt.open) return;
+    const enquiry = document.getElementById('enquire');
+    const enquiryBounds = enquiry?.getBoundingClientRect();
+    const enquiryVisible = enquiryBounds && enquiryBounds.top < window.innerHeight && enquiryBounds.bottom > 0;
+
+    if (enquiryVisible) {
+      rememberPrompt();
+      return;
+    }
+
+    quotePrompt.showModal();
+    body.classList.add('dialog-open');
+    window.requestAnimationFrame(() => quotePromptCta?.focus());
+  };
+
+  if (!hasSeenPrompt()) promptTimer = window.setTimeout(showPrompt, 10000);
+
+  quotePrompt.querySelectorAll('[data-quote-prompt-close]').forEach((button) => {
+    button.addEventListener('click', closePrompt);
+  });
+
+  quotePromptCta?.addEventListener('click', closePrompt);
+
+  quotePrompt.addEventListener('close', () => {
+    body.classList.remove('dialog-open');
+    rememberPrompt();
+  });
+
+  quotePrompt.addEventListener('click', (event) => {
+    if (event.target !== quotePrompt) return;
+    const bounds = quotePrompt.getBoundingClientRect();
+    const insideDialog = event.clientX >= bounds.left && event.clientX <= bounds.right
+      && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+    if (!insideDialog) closePrompt();
+  });
+
+  document.querySelectorAll('a[href="#enquire"]:not([data-quote-prompt-cta])').forEach((link) => {
+    link.addEventListener('click', () => {
+      clearPromptTimer();
+      rememberPrompt();
+    });
   });
 }
 

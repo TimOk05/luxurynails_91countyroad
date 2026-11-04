@@ -24,7 +24,7 @@ test('loads the luxury journey without overflow or browser errors', async ({ pag
   await expect(page.getByRole('heading', { name: /Choose your clean/i })).toBeVisible();
 
   const images = page.locator('img');
-  expect(await images.count()).toBeGreaterThanOrEqual(6);
+  expect(await images.count()).toBeGreaterThanOrEqual(4);
   await images.evaluateAll(async (items) => {
     for (const image of items) {
       image.scrollIntoView({ block: 'center' });
@@ -113,6 +113,27 @@ test('uses temporary LS marks instead of image logos', async ({ page }) => {
   await expect(page.locator('.logo-placeholder')).toHaveCount(3);
   await expect(page.locator('.hero-crest.logo-placeholder')).toContainText('LS');
   await expect(page.locator('.footer-mark.logo-placeholder')).toContainText('LS');
+});
+
+test('uses polished placeholders for pending client media', async ({ page }) => {
+  await expect(page.locator('img[src*="locksora-included-v2"]')).toHaveCount(0);
+  await expect(page.locator('img[src*="locksora-areas-v2"]')).toHaveCount(0);
+  await expect(page.locator('.feed-client-placeholder')).toContainText('Client content will be added here.');
+  await expect(page.locator('.areas-placeholder')).toContainText('Area coverage visual');
+});
+
+test('shows the quote prompt after ten seconds and opens the enquiry', async ({ page }) => {
+  test.skip(page.viewportSize()?.width !== 390, 'Timer is covered once to keep the suite fast');
+  await page.evaluate(() => sessionStorage.removeItem('locksoraQuotePromptSeen'));
+  await page.reload();
+
+  const prompt = page.locator('[data-quote-prompt]');
+  await expect(prompt).toBeVisible({ timeout: 12000 });
+  await expect(prompt.getByRole('heading', { name: 'Ready to come home to calm?' })).toBeVisible();
+  await prompt.getByRole('link', { name: /Start my enquiry/i }).click();
+  await expect(prompt).not.toBeVisible();
+  await expect(page).toHaveURL(/#enquire$/);
+  await expect(page.locator('#enquire')).toBeInViewport();
 });
 
 test('service selector changes content and prepares the quote', async ({ page }) => {
