@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://timok05.github.io/luxurynails_91countyroad/sitemap.xml

@@ -1,0 +1,15 @@
+{
+  "name": "locksora-cleaning-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Premium demo website for LockSora Cleaning Company in South London",
+  "scripts": {
+    "start": "http-server . -p 43117 -c-1",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "http-server": "^14.1.1"
+  }
+}
